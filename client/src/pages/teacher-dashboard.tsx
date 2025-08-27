@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getCurrentUser } from "@/lib/auth";
 import Navbar from "@/components/navbar";
+import AddSubjectModal from "@/components/add-subject-modal";
 
 interface Student {
   id: string;
@@ -249,7 +250,7 @@ export default function TeacherDashboard() {
               </div>
             </div>
 
-            <div className="mt-4 flex space-x-3">
+            <div className="mt-4 flex flex-wrap gap-3">
               <Button onClick={handleLoadAttendance} data-testid="button-load-attendance">
                 <Search className="mr-2 h-4 w-4" />
                 Load Attendance
@@ -272,6 +273,7 @@ export default function TeacherDashboard() {
                 <Save className="mr-2 h-4 w-4" />
                 Save Attendance
               </Button>
+              <AddSubjectModal />
             </div>
           </CardContent>
         </Card>

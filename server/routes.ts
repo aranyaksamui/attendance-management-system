@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { loginSchema, signupSchema, insertAttendanceSchema } from "@shared/schema";
+import { loginSchema, signupSchema, insertAttendanceSchema, insertSubjectSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -31,13 +31,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create subjects for different semesters
       if (semesters.length > 0) {
         await Promise.all([
+          // Semester 1
           storage.createSubject({ name: "Mathematics I", code: "MATH101", semesterId: semesters[0]?.id }),
           storage.createSubject({ name: "Physics I", code: "PHY101", semesterId: semesters[0]?.id }),
           storage.createSubject({ name: "Programming Fundamentals", code: "CS101", semesterId: semesters[0]?.id }),
+          // Semester 2
           storage.createSubject({ name: "Mathematics II", code: "MATH102", semesterId: semesters[1]?.id }),
           storage.createSubject({ name: "Data Structures", code: "CS201", semesterId: semesters[1]?.id }),
+          storage.createSubject({ name: "Object Oriented Programming", code: "CS202", semesterId: semesters[1]?.id }),
+          // Semester 3
           storage.createSubject({ name: "Database Systems", code: "CS301", semesterId: semesters[2]?.id }),
           storage.createSubject({ name: "Web Development", code: "CS302", semesterId: semesters[2]?.id }),
+          storage.createSubject({ name: "Computer Networks", code: "CS303", semesterId: semesters[2]?.id }),
+          // Semester 4
+          storage.createSubject({ name: "Software Engineering", code: "CS401", semesterId: semesters[3]?.id }),
+          storage.createSubject({ name: "Operating Systems", code: "CS402", semesterId: semesters[3]?.id }),
+          storage.createSubject({ name: "Algorithms", code: "CS403", semesterId: semesters[3]?.id }),
+          // Semester 5
+          storage.createSubject({ name: "Machine Learning", code: "CS501", semesterId: semesters[4]?.id }),
+          storage.createSubject({ name: "Artificial Intelligence", code: "CS502", semesterId: semesters[4]?.id }),
+          storage.createSubject({ name: "Mobile App Development", code: "CS503", semesterId: semesters[4]?.id }),
+          // Semester 6
+          storage.createSubject({ name: "Cloud Computing", code: "CS601", semesterId: semesters[5]?.id }),
+          storage.createSubject({ name: "Cybersecurity", code: "CS602", semesterId: semesters[5]?.id }),
+          storage.createSubject({ name: "DevOps", code: "CS603", semesterId: semesters[5]?.id }),
         ]).catch(() => []); // Ignore if already exist
       }
 
@@ -165,6 +182,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(subjects);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch subjects" });
+    }
+  });
+
+  // Create subject
+  app.post("/api/subjects", async (req, res) => {
+    try {
+      const subjectData = insertSubjectSchema.parse(req.body);
+      const subject = await storage.createSubject(subjectData);
+      res.json(subject);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to create subject" });
     }
   });
 
