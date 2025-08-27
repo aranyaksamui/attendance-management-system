@@ -35,7 +35,7 @@ export default function StudentDashboard() {
 
   // Fetch student's attendance records
   const { data: attendanceRecords, isLoading } = useQuery({
-    queryKey: ['/api/student-attendance', student?.id, selectedSubject, fromDate, toDate],
+    queryKey: ['/api/student-attendance', student?.id, selectedSubject === 'all' ? '' : selectedSubject, fromDate, toDate],
     enabled: !!student?.id,
   });
 
@@ -130,7 +130,7 @@ export default function StudentDashboard() {
                     <SelectValue placeholder="All Subjects" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="" data-testid="option-all-subjects">All Subjects</SelectItem>
+                    <SelectItem value="all" data-testid="option-all-subjects">All Subjects</SelectItem>
                     {Array.isArray(subjects) && subjects.map((subject: any) => (
                       <SelectItem key={subject.id} value={subject.id} data-testid={`option-subject-${subject.code}`}>
                         {subject.name}
