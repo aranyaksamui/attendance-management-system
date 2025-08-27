@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import Login from "@/pages/login";
+import Signup from "@/pages/signup";
 import TeacherDashboard from "@/pages/teacher-dashboard";
 import StudentDashboard from "@/pages/student-dashboard";
 import NotFound from "@/pages/not-found";
@@ -37,6 +38,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Login} />
+      <Route path="/signup" component={Signup} />
       <Route path="/teacher-dashboard">
         <ProtectedRoute allowedRoles={['teacher']}>
           <TeacherDashboard />

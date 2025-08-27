@@ -160,6 +160,27 @@ export const loginSchema = z.object({
   role: z.enum(['teacher', 'student']),
 });
 
+export const signupSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(['teacher', 'student']),
+  rollNo: z.string().optional(),
+  employeeId: z.string().optional(),
+  batchId: z.string().optional(),
+  semesterId: z.string().optional(),
+}).refine((data) => {
+  if (data.role === 'student') {
+    return data.rollNo && data.batchId && data.semesterId;
+  }
+  if (data.role === 'teacher') {
+    return data.employeeId;
+  }
+  return true;
+}, {
+  message: "Student must provide roll number, batch, and semester. Teacher must provide employee ID.",
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -176,3 +197,4 @@ export type InsertSubject = z.infer<typeof insertSubjectSchema>;
 export type Attendance = typeof attendance.$inferSelect;
 export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
 export type LoginRequest = z.infer<typeof loginSchema>;
+export type SignupRequest = z.infer<typeof signupSchema>;

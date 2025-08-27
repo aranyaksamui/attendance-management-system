@@ -47,7 +47,7 @@ export default function StudentDashboard() {
 
   // Calculate attendance statistics
   const calculateAttendanceStats = () => {
-    if (!attendanceRecords) return {};
+    if (!attendanceRecords || !Array.isArray(attendanceRecords)) return {};
 
     const subjectStats: Record<string, { present: number; total: number; percentage: number }> = {};
 
@@ -70,8 +70,8 @@ export default function StudentDashboard() {
     });
 
     // Calculate overall percentage
-    const totalRecords = attendanceRecords.length;
-    const totalPresent = attendanceRecords.filter((r: AttendanceRecord) => r.status === 'present').length;
+    const totalRecords = Array.isArray(attendanceRecords) ? attendanceRecords.length : 0;
+    const totalPresent = Array.isArray(attendanceRecords) ? attendanceRecords.filter((r: AttendanceRecord) => r.status === 'present').length : 0;
     const overallPercentage = totalRecords > 0 ? Math.round((totalPresent / totalRecords) * 100) : 0;
 
     return { subjectStats, overallPercentage };
@@ -131,7 +131,7 @@ export default function StudentDashboard() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="" data-testid="option-all-subjects">All Subjects</SelectItem>
-                    {subjects?.map((subject: any) => (
+                    {Array.isArray(subjects) && subjects.map((subject: any) => (
                       <SelectItem key={subject.id} value={subject.id} data-testid={`option-subject-${subject.code}`}>
                         {subject.name}
                       </SelectItem>
@@ -174,7 +174,7 @@ export default function StudentDashboard() {
                 Attendance Records
               </div>
               <span className="text-sm text-muted-foreground" data-testid="text-records-info">
-                {attendanceRecords?.length || 0} records
+                {Array.isArray(attendanceRecords) ? attendanceRecords.length : 0} records
               </span>
             </CardTitle>
           </CardHeader>
@@ -196,14 +196,14 @@ export default function StudentDashboard() {
                         Loading attendance records...
                       </TableCell>
                     </TableRow>
-                  ) : !attendanceRecords || attendanceRecords.length === 0 ? (
+                  ) : !attendanceRecords || !Array.isArray(attendanceRecords) || attendanceRecords.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center" data-testid="text-no-records">
                         No attendance records found
                       </TableCell>
                     </TableRow>
                   ) : (
-                    attendanceRecords.map((record: AttendanceRecord) => (
+                    Array.isArray(attendanceRecords) && attendanceRecords.map((record: AttendanceRecord) => (
                       <TableRow key={record.id} data-testid={`row-attendance-${record.id}`}>
                         <TableCell data-testid={`text-date-${record.id}`}>
                           {new Date(record.date).toLocaleDateString()}

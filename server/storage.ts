@@ -139,22 +139,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getStudentAttendance(studentId: string, subjectId?: string, fromDate?: string, toDate?: string): Promise<(Attendance & { subject: Subject, teacher: Teacher & { user: User } })[]> {
-    let query = db
+    // Build where conditions
+    const conditions = [eq(attendance.studentId, studentId)];
+    if (subjectId) {
+      conditions.push(eq(attendance.subjectId, subjectId));
+    }
+
+    const result = await db
       .select()
       .from(attendance)
       .innerJoin(subjects, eq(attendance.subjectId, subjects.id))
       .innerJoin(teachers, eq(attendance.teacherId, teachers.id))
       .innerJoin(users, eq(teachers.userId, users.id))
-      .where(eq(attendance.studentId, studentId))
+      .where(and(...conditions))
       .orderBy(desc(attendance.date));
 
-    // Apply filters if provided
-    // Note: For simplicity, not implementing date range filtering in this demo
-    if (subjectId) {
-      query = query.where(and(eq(attendance.studentId, studentId), eq(attendance.subjectId, subjectId)));
-    }
-
-    const result = await query;
     return result.map(r => ({ 
       ...r.attendance, 
       subject: r.subjects, 

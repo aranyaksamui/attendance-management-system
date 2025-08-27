@@ -122,7 +122,7 @@ export default function TeacherDashboard() {
 
   // Mark all present
   const markAllPresent = () => {
-    if (!students) return;
+    if (!students || !Array.isArray(students)) return;
     const newRecords: Record<string, string> = {};
     students.forEach((student: Student) => {
       newRecords[student.id] = 'present';
@@ -152,20 +152,20 @@ export default function TeacherDashboard() {
   };
 
   // Filter students based on search
-  const filteredStudents = students?.filter((student: Student) =>
+  const filteredStudents = Array.isArray(students) ? students.filter((student: Student) =>
     student.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.rollNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  ) : [];
 
   // Calculate summary
   const presentCount = Object.values(attendanceRecords).filter(status => status === 'present').length;
   const absentCount = Object.values(attendanceRecords).filter(status => status === 'absent').length;
-  const totalCount = students?.length || 0;
+  const totalCount = Array.isArray(students) ? students.length : 0;
 
   // Load existing attendance data
   useEffect(() => {
-    if (existingAttendance && existingAttendance.length > 0) {
+    if (existingAttendance && Array.isArray(existingAttendance) && existingAttendance.length > 0) {
       const records: Record<string, string> = {};
       existingAttendance.forEach((record: any) => {
         records[record.studentId] = record.status;
@@ -195,7 +195,7 @@ export default function TeacherDashboard() {
                     <SelectValue placeholder="Select Batch" />
                   </SelectTrigger>
                   <SelectContent>
-                    {batches?.map((batch: any) => (
+                    {Array.isArray(batches) && batches.map((batch: any) => (
                       <SelectItem key={batch.id} value={batch.id} data-testid={`option-batch-${batch.year}`}>
                         Batch {batch.year}
                       </SelectItem>
@@ -211,7 +211,7 @@ export default function TeacherDashboard() {
                     <SelectValue placeholder="Select Semester" />
                   </SelectTrigger>
                   <SelectContent>
-                    {semesters?.map((semester: any) => (
+                    {Array.isArray(semesters) && semesters.map((semester: any) => (
                       <SelectItem key={semester.id} value={semester.id} data-testid={`option-semester-${semester.number}`}>
                         Semester {semester.number}
                       </SelectItem>
@@ -227,7 +227,7 @@ export default function TeacherDashboard() {
                     <SelectValue placeholder="Select Subject" />
                   </SelectTrigger>
                   <SelectContent>
-                    {subjects?.map((subject: any) => (
+                    {Array.isArray(subjects) && subjects.map((subject: any) => (
                       <SelectItem key={subject.id} value={subject.id} data-testid={`option-subject-${subject.code}`}>
                         {subject.name}
                       </SelectItem>
@@ -285,7 +285,7 @@ export default function TeacherDashboard() {
                   Student Attendance
                 </div>
                 <span className="text-sm text-muted-foreground" data-testid="text-attendance-info">
-                  {selectedDate} | {subjects?.find((s: any) => s.id === selectedSubject)?.name}
+                  {selectedDate} | {Array.isArray(subjects) ? subjects.find((s: any) => s.id === selectedSubject)?.name : ''}
                 </span>
               </CardTitle>
             </CardHeader>
