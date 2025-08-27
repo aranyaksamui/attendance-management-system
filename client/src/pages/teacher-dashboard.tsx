@@ -72,7 +72,8 @@ export default function TeacherDashboard() {
   // Save attendance mutation
   const saveAttendanceMutation = useMutation({
     mutationFn: async (attendanceData: AttendanceRecord[]) => {
-      const teacher = await getCurrentUser()?.teacher;
+      const currentUser = getCurrentUser();
+      const teacher = currentUser?.teacher;
       const records = attendanceData.map(record => ({
         studentId: record.studentId,
         subjectId: selectedSubject,

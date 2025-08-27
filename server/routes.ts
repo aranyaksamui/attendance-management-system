@@ -115,23 +115,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get additional user info based on role
-      let additionalInfo = {};
+      let student = null;
+      let teacher = null;
+      
       if (role === 'student') {
-        const student = await storage.getStudentByUserId(user.id);
-        additionalInfo = { student };
+        student = await storage.getStudentByUserId(user.id);
       } else if (role === 'teacher') {
-        const teacher = await storage.getTeacherByUserId(user.id);
-        additionalInfo = { teacher };
+        teacher = await storage.getTeacherByUserId(user.id);
       }
 
       res.json({ 
-        user: { 
-          id: user.id, 
-          email: user.email, 
-          name: user.name, 
-          role: user.role 
-        }, 
-        ...additionalInfo 
+        id: user.id, 
+        email: user.email, 
+        name: user.name, 
+        role: user.role,
+        student,
+        teacher
       });
     } catch (error) {
       res.status(400).json({ message: "Invalid request data" });

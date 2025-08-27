@@ -66,8 +66,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getStudentByUserId(userId: string): Promise<Student | undefined> {
-    const [student] = await db.select().from(students).where(eq(students.userId, userId));
-    return student || undefined;
+    const result = await db
+      .select()
+      .from(students)
+      .leftJoin(batches, eq(students.batchId, batches.id))
+      .leftJoin(semesters, eq(students.semesterId, semesters.id))
+      .where(eq(students.userId, userId));
+    
+    if (result.length === 0) return undefined;
+    
+    const row = result[0];
+    return {
+      ...row.students,
+      batch: row.batches,
+      semester: row.semesters
+    } as any;
   }
 
   async getStudentsByBatchAndSemester(batchId: string, semesterId: string): Promise<(Student & { user: User })[]> {
