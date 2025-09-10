@@ -23,12 +23,12 @@ async function initializeDatabase() {
       db = neonDrizzle(pool, { schema });
       console.log('Using Neon database');
     } else {
-      // Use node-postgres for standard Postgres providers (Render, Railway, etc.)
-      const { drizzle: pgDrizzle } = await import('drizzle-orm/node-postgres');
-      const { Pool } = await import('pg');
-      const pool = new Pool({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } });
-      db = pgDrizzle(pool, { schema });
-      console.log('Using node-postgres database');
+      // Use postgres-js for standard Postgres providers (Render, Railway, etc.)
+      const { drizzle: postgresDrizzle } = await import('drizzle-orm/postgres-js');
+      const postgres = (await import('postgres')).default;
+      const client = postgres(databaseUrl, { ssl: 'require' });
+      db = postgresDrizzle(client, { schema });
+      console.log('Using postgres-js database');
     }
   } else {
     throw new Error(
