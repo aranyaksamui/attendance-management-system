@@ -37,7 +37,10 @@ async function initializeDatabase() {
   }
 }
 
-// Initialize database immediately
-initializeDatabase().catch(console.error);
+// Initialize database immediately and export readiness promise
+const dbReady = initializeDatabase().catch((err) => {
+  console.error('Failed to initialize database:', err);
+  throw err;
+});
 
-export { db };
+export { db, dbReady };
