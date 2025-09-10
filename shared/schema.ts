@@ -9,7 +9,7 @@ export const users = sqliteTable("users", {
   password: text("password").notNull(),
   role: text("role").notNull(), // 'teacher' or 'student'
   name: text("name").notNull(),
-  createdAt: integer("createdAt").$defaultFn(() => Date.now()),
+  createdAt: integer("createdAt", { mode: 'number' }).$defaultFn(() => Date.now()),
 });
 
 export const batches = sqliteTable("batches", {

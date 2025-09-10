@@ -59,7 +59,7 @@ async function createTablesDirectly(client: any) {
       password TEXT NOT NULL,
       role TEXT NOT NULL,
       name TEXT NOT NULL,
-      "createdAt" INTEGER
+      "createdAt" BIGINT
     );
 
     CREATE TABLE IF NOT EXISTS batches (
