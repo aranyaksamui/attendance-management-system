@@ -370,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(attendance);
     } catch (error) {
       console.error('Attendance creation error:', error);
-      res.status(400).json({ message: "Invalid attendance data", error: error.message });
+      res.status(400).json({ message: "Invalid attendance data", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -422,7 +422,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Import error:", error);
-      res.status(500).json({ message: "Import failed", error: error.message });
+      res.status(500).json({ message: "Import failed", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
