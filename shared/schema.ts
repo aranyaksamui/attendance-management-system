@@ -1,58 +1,58 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, integer, date, boolean, timestamp } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   role: text("role").notNull(), // 'teacher' or 'student'
   name: text("name").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: integer("createdAt").$defaultFn(() => Date.now()),
 });
 
-export const batches = pgTable("batches", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const batches = sqliteTable("batches", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   year: integer("year").notNull().unique(),
   name: text("name").notNull(),
 });
 
-export const semesters = pgTable("semesters", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const semesters = sqliteTable("semesters", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   number: integer("number").notNull(),
   name: text("name").notNull(),
 });
 
-export const subjects = pgTable("subjects", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const subjects = sqliteTable("subjects", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   code: text("code").notNull().unique(),
-  semesterId: varchar("semester_id").references(() => semesters.id),
+  semesterId: text("semesterId").references(() => semesters.id),
 });
 
-export const students = pgTable("students", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id),
-  rollNo: text("roll_no").notNull().unique(),
-  batchId: varchar("batch_id").references(() => batches.id),
-  semesterId: varchar("semester_id").references(() => semesters.id),
+export const students = sqliteTable("students", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId").references(() => users.id),
+  rollNo: text("rollNo").notNull().unique(),
+  batchId: text("batchId").references(() => batches.id),
+  semesterId: text("semesterId").references(() => semesters.id),
 });
 
-export const teachers = pgTable("teachers", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id),
-  employeeId: text("employee_id").notNull().unique(),
+export const teachers = sqliteTable("teachers", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId").references(() => users.id),
+  employeeId: text("employeeId").notNull().unique(),
 });
 
-export const attendance = pgTable("attendance", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => students.id),
-  subjectId: varchar("subject_id").references(() => subjects.id),
-  teacherId: varchar("teacher_id").references(() => teachers.id),
-  date: date("date").notNull(),
+export const attendance = sqliteTable("attendance", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  studentId: text("studentId").references(() => students.id),
+  subjectId: text("subjectId").references(() => subjects.id),
+  teacherId: text("teacherId").references(() => teachers.id),
+  date: text("date").notNull(), // Store as ISO string
   status: text("status").notNull(), // 'present' or 'absent'
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: text("createdAt").$defaultFn(() => new Date().toISOString()),
 });
 
 // Relations
@@ -149,9 +149,12 @@ export const insertTeacherSchema = createInsertSchema(teachers).omit({
   id: true,
 });
 
-export const insertAttendanceSchema = createInsertSchema(attendance).omit({
-  id: true,
-  createdAt: true,
+export const insertAttendanceSchema = z.object({
+  studentId: z.string().min(1),
+  subjectId: z.string().min(1),
+  teacherId: z.string().min(1),
+  date: z.string(),
+  status: z.enum(['present', 'absent'])
 });
 
 export const loginSchema = z.object({

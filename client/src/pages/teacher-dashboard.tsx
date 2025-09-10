@@ -85,12 +85,20 @@ export default function TeacherDashboard() {
 
       return apiRequest("POST", "/api/attendance/bulk", { attendanceRecords: records });
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast({
         title: "Success",
         description: "Attendance saved successfully!",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/attendance'] });
+      // Invalidate student attendance queries for all students whose attendance was marked
+      if (Array.isArray(variables)) {
+        variables.forEach((record) => {
+          if (record.studentId) {
+            queryClient.invalidateQueries({ queryKey: ['/api/student-attendance', record.studentId] });
+          }
+        });
+      }
     },
     onError: () => {
       toast({

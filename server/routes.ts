@@ -174,6 +174,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all subjects
+  app.get("/api/subjects", async (req, res) => {
+    try {
+      const subjects = await storage.getAllSubjects();
+      res.json(subjects);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch subjects" });
+    }
+  });
+
   // Get subjects by semester
   app.get("/api/subjects/:semesterId", async (req, res) => {
     try {
@@ -193,6 +203,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(subject);
     } catch (error) {
       res.status(400).json({ message: "Failed to create subject" });
+    }
+  });
+
+  // Get all teachers
+  app.get("/api/teachers", async (req, res) => {
+    try {
+      const teachers = await storage.getAllTeachers();
+      res.json(teachers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch teachers" });
+    }
+  });
+
+  // Get all students
+  app.get("/api/students", async (req, res) => {
+    try {
+      const students = await storage.getAllStudents();
+      res.json(students);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch students" });
+    }
+  });
+
+  // Get students by batch
+  app.get("/api/students/batch/:batchId", async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      const students = await storage.getStudentsByBatch(batchId);
+      res.json(students);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch students by batch" });
+    }
+  });
+
+  // Get attendance report
+  app.get("/api/reports/attendance", async (req, res) => {
+    try {
+      const { date, subjectId, batchId, semesterId } = req.query;
+      
+      if (!date || !subjectId || !batchId) {
+        return res.status(400).json({ 
+          message: "Date, subjectId, and batchId are required" 
+        });
+      }
+
+      const report = await storage.getAttendanceReport(date as string, subjectId as string, batchId as string, semesterId as string | undefined);
+      res.json(report);
+    } catch (error) {
+      console.error('Error generating attendance report:', error);
+      res.status(500).json({ message: "Failed to generate attendance report" });
+    }
+  });
+
+  // Attendance range report for students
+  app.get("/api/reports/attendance-range", async (req, res) => {
+    try {
+      const { batchId, semesterId, subjectId, startDate, endDate } = req.query;
+      if (!batchId || !semesterId || !subjectId || !startDate || !endDate) {
+        return res.status(400).json({ message: "batchId, semesterId, subjectId, startDate, and endDate are required" });
+      }
+      const report = await storage.getAttendanceRangeReport(
+        batchId as string,
+        semesterId as string,
+        subjectId as string,
+        startDate as string,
+        endDate as string
+      );
+      res.json(report);
+    } catch (error) {
+      console.error('Error generating attendance range report:', error);
+      res.status(500).json({ message: "Failed to generate attendance range report" });
     }
   });
 
@@ -218,6 +299,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get attendance by date and subject (query parameters)
+  app.get("/api/attendance", async (req, res) => {
+    try {
+      const { date, subjectId } = req.query;
+      
+      if (!date || !subjectId) {
+        return res.status(400).json({ 
+          message: "Date and subjectId are required" 
+        });
+      }
+
+      const attendance = await storage.getAttendanceByDateAndSubject(date as string, subjectId as string);
+      res.json(attendance);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch attendance" });
+    }
+  });
+
   // Get student's attendance records
   app.get("/api/student-attendance/:studentId", async (req, res) => {
     try {
@@ -236,14 +335,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get student's attendance range report
+  app.get("/api/student-attendance-range/:studentId", async (req, res) => {
+    try {
+      const { studentId } = req.params;
+      const { subjectId, fromDate, toDate } = req.query;
+      
+      if (!fromDate || !toDate) {
+        return res.status(400).json({ message: "fromDate and toDate are required" });
+      }
+
+      const report = await storage.getStudentAttendanceRangeReport(
+        studentId,
+        subjectId as string,
+        fromDate as string,
+        toDate as string
+      );
+      res.json(report);
+    } catch (error) {
+      console.error('Error generating student attendance range report:', error);
+      res.status(500).json({ message: "Failed to generate student attendance range report" });
+    }
+  });
+
   // Mark attendance
   app.post("/api/attendance", async (req, res) => {
     try {
+      console.log('Received attendance data:', req.body);
       const attendanceData = insertAttendanceSchema.parse(req.body);
+      console.log('Parsed attendance data:', attendanceData);
       const attendance = await storage.createAttendance(attendanceData);
+      console.log('Created attendance:', attendance);
       res.json(attendance);
     } catch (error) {
-      res.status(400).json({ message: "Invalid attendance data" });
+      console.error('Attendance creation error:', error);
+      res.status(400).json({ message: "Invalid attendance data", error: error.message });
     }
   });
 

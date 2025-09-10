@@ -9,6 +9,7 @@ import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import TeacherDashboard from "@/pages/teacher-dashboard";
 import StudentDashboard from "@/pages/student-dashboard";
+import Reports from "@/pages/reports";
 import NotFound from "@/pages/not-found";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -42,6 +43,11 @@ function Router() {
       <Route path="/teacher-dashboard">
         <ProtectedRoute allowedRoles={['teacher']}>
           <TeacherDashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/reports">
+        <ProtectedRoute allowedRoles={['teacher']}>
+          <Reports />
         </ProtectedRoute>
       </Route>
       <Route path="/student-dashboard">

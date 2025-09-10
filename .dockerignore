@@ -1,0 +1,15 @@
+node_modules
+dist
+.git
+.gitignore
+dev.db
+*.log
+*.local
+.env
+.env.*
+**/.cache
+**/coverage
+**/tmp
+**/.vite
+**/.DS_Store
+
