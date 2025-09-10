@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { loginSchema, signupSchema, insertAttendanceSchema, insertSubjectSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
+import { importFromGitHub } from "./import-util";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize seed data
@@ -388,6 +389,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(results);
     } catch (error) {
       res.status(400).json({ message: "Failed to save attendance records" });
+    }
+  });
+
+  // Admin: Import data from GitHub CSVs
+  app.post("/api/admin/import-from-github", async (req, res) => {
+    try {
+      const { token } = req.query;
+      const expectedToken = process.env.IMPORT_TOKEN;
+      
+      if (!expectedToken || token !== expectedToken) {
+        return res.status(401).json({ message: "Invalid or missing import token" });
+      }
+
+      console.log("Starting GitHub CSV import...");
+      const stats = await importFromGitHub();
+      
+      res.json({
+        message: "Import completed",
+        stats: {
+          imported: {
+            users: stats.users,
+            batches: stats.batches,
+            semesters: stats.semesters,
+            subjects: stats.subjects,
+            teachers: stats.teachers,
+            students: stats.students,
+            attendance: stats.attendance
+          },
+          errors: stats.errors
+        }
+      });
+    } catch (error) {
+      console.error("Import error:", error);
+      res.status(500).json({ message: "Import failed", error: error.message });
     }
   });
 
