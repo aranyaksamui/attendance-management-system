@@ -10,7 +10,8 @@
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "init-db": "tsx server/init-db.ts",
-    "seed-data": "tsx server/seed-data.ts"
+    "seed-data": "tsx server/seed-data.ts",
+    "export:sqlite": "tsx scripts/export-sqlite.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
