@@ -18,6 +18,8 @@ services:
         fromDatabase:
           name: attendtrack-db
           property: connectionString
+      - key: IMPORT_TOKEN
+        value: "attendtrack-import-2025"
     healthCheckPath: /
 
 databases:
